@@ -1,6 +1,8 @@
 const models = require('../models');
 const Promise = require('bluebird');
 
+module.exports.parseCookies = require('./cookieParser.js');
+
 module.exports.createSession = (req, res, next) => {
 
   // access req.cookies
@@ -12,6 +14,9 @@ module.exports.createSession = (req, res, next) => {
   // set a new cookie on the response 'shortlyid'
   if (!req.cookies.shortlyid) {
     return models.Sessions.create()
+      .catch((error) => {
+        console.log(error);
+      })
       .then((results) => {
         let id = results.insertId;
         return models.Sessions.get({ id });

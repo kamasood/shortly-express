@@ -5,6 +5,8 @@ const partials = require('express-partials');
 const Auth = require('./middleware/auth');
 const models = require('./models');
 
+const router = require('./routes.js');
+
 const app = express();
 
 app.set('views', `${__dirname}/views`);
@@ -14,7 +16,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 
+//added auth middleware here
+app.use(Auth.parseCookies);
+app.use(Auth.createSession);
 
+//trying to setup router file
+app.use('/', router);
 
 app.get('/',
   (req, res) => {
@@ -77,6 +84,10 @@ app.post('/links',
 // Write your authentication routes here
 /************************************************************/
 
+app.get('/signup', (req, res) => {
+  res.render('signup');
+});
+
 app.post('/signup', (req, res) => {
   return models.Users.create({
     username: req.body.username,
@@ -92,6 +103,10 @@ app.post('/signup', (req, res) => {
         console.log(error);
       }
     });
+});
+
+app.get('/login', (req, res) => {
+  res.render('login');
 });
 
 app.post('/login', (req, res) => {
