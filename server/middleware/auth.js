@@ -7,9 +7,9 @@ module.exports.createSession = (req, res, next) => {
   // lookup user data related to session
   // assign object to req.session with relevant user information
 
-  // req.cookies empty => generate session with new hash and store in database
-  // use hash to set a cookie in the response headers (see Learn)
-
+  // if there are no cookies on the request
+  // initialize a new session (Sessions.create, Sessions.get & req.session)
+  // set a new cookie on the response 'shortlyid'
   if (!req.cookies.shortlyid) {
     return models.Sessions.create()
       .then((results) => {
@@ -17,16 +17,37 @@ module.exports.createSession = (req, res, next) => {
         return models.Sessions.get({ id });
       })
       .then((session) => {
-        console.log(session); // should we iterate over this, or just assign it??
-        req.session = session.hash;
-        res.cookie('shortlyid', session.hash).end();
+        req.session = session;
+        res.cookie('shortlyid', session.hash);
+        next();
       });
+    //catch do something
   }
 
-  // if req.cookies => verify cookie is valid (session stored in database)
-
-  // if not req.cookies not valid, do something...
-
+  // if there is a cookie 'shortlyid' on request
+  // lookup session & add to req.session
+  // if no session at lookup, create new session and reassign res.cookies
+  if (req.cookies.shortlyid) {
+    return models.Sessions.get({ hash: req.cookies.shortlyid })
+      .then((session) => {
+        if (!session) {
+          return models.Sessions.create();
+        } else {
+          req.session = session;
+          next();
+        }
+      })
+      .then((results) => {
+        let id = results.insertId;
+        return models.Sessions.get({ id });
+      })
+      .then((session) => {
+        req.session = session;
+        res.cookie('shortlyid', session.hash);
+        next();
+      });
+    //catch do something
+  }
 };
 
 /************************************************************/

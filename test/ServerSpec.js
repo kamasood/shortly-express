@@ -374,8 +374,6 @@ describe('', function() {
       });
     });
 
-    // working here
-
     describe('Session Parser', function() {
       it('initializes a new session when there are no cookies on the request', function(done) {
         var requestWithoutCookies = httpMocks.createRequest();
@@ -485,7 +483,9 @@ describe('', function() {
     });
   });
 
-  xdescribe('Sessions and cookies', function() {
+  // working here
+
+  describe('Sessions and cookies', function() {
     var requestWithSession;
     var cookieJar;
 
